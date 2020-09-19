@@ -6,6 +6,7 @@
   "rules": {
     "object-curly-spacing": "off",
     "semi": "off",
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "quotes": "off"
   }
 }
