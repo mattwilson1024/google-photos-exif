@@ -1,6 +1,6 @@
 # google-photos-exif
 
-A tool to fix missing date taken EXIF metadata from Google Photos takeout
+A tool to populate missing `DateTimeOriginal` EXIF metadata in Google Photos takeout, using Google's JSON metadata.
 
 ## Table of Contents
 

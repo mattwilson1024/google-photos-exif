@@ -1,6 +1,6 @@
 {
   "name": "google-photos-exif",
-  "description": "A tool to fix missing date taken EXIF metadata from Google Photos takeout",
+  "description": "A tool to populate missing DateTimeOriginal EXIF metadata in Google Photos takeout, using Google's JSON metadata.",
   "version": "0.0.0",
   "author": "Matt Wilson @mattwilson1024",
   "bin": {
