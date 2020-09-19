@@ -9,6 +9,7 @@ import { moveFile } from './helpers/move-file'
 import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json'
 import { updateExifMetadata } from './helpers/update-exif-metadata'
 import { updateFileModificationDate } from './helpers/update-file-modification-date'
+import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date'
 
 const { readdir, mkdir, copyFile } = fspromises;
 
@@ -103,7 +104,7 @@ class GooglePhotosExif extends Command {
   }
 
   private async processMediaFiles(directories: Directories): Promise<void> {
-    this.log('--- Finding media files and reading EXIF metadata. This may take a while... ---')
+    this.log('--- Finding media files ---')
     const mediaFiles = await getMediaFiles(directories);
 
     const jpegs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.jpeg' || mediaFile.mediaFileExtension.toLowerCase() === '.jpg');
@@ -111,7 +112,7 @@ class GooglePhotosExif extends Command {
     const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
     this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s ---`);
 
-    this.log(`--- Processing files... ---`);
+    this.log(`--- Processing files. This might take a while... ---`);
     let exifUpdateCount = 0;
 
     for (const mediaFile of mediaFiles) {
@@ -119,23 +120,23 @@ class GooglePhotosExif extends Command {
       let exifUpdated = false;
       const photoTimeTaken = await readPhotoTakenTimeFromGoogleJson(mediaFile);
 
-      this.log(`PHOTO TIME: ${mediaFile.mediaFileName}: ${photoTimeTaken}`);
-
       if (photoTimeTaken) {
-        await updateFileModificationDate(mediaFile.mediaFilePath, photoTimeTaken);
-
-        if (mediaFile.supportsExif && !mediaFile.hasExifDate) {
-          await updateExifMetadata(mediaFile.mediaFilePath, photoTimeTaken);
-          exifUpdated = true;
+        if (mediaFile.supportsExif) {
+          const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
+          if (!hasExifDate) {
+            await updateExifMetadata(mediaFile.mediaFilePath, photoTimeTaken);
+            exifUpdated = true;
+            this.log(`${mediaFile.mediaFileName}: Wrote "DateTimeOriginal" EXIF metadata`);
+          }
         }
+
+        await updateFileModificationDate(mediaFile.mediaFilePath, photoTimeTaken);
       }
 
       if (exifUpdated) {
-        this.log(`${mediaFile.mediaFileName}: Updated file modification date AND EXIF "DateTimeOriginal" metadata`);
         await moveFile(mediaFile.mediaFilePath, directories.mediaWithUpdatedExif);
         exifUpdateCount++;
       } else {
-        this.log(`${mediaFile.mediaFileName}: Updated file modification date only`);
         await moveFile(mediaFile.mediaFilePath, directories.media);
       }
 

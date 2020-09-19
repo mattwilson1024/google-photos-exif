@@ -3,7 +3,6 @@ import { MediaFileInfo } from '../models/media-file-info'
 import { findFilesWithExtension } from './find-files-with-extension'
 import { basename, extname } from 'path'
 import { doesFileSupportExif } from './does-file-support-exif'
-import { doesFileHaveExifDate } from './does-file-have-exif-date'
 import { existsSync } from "fs"
 import { getCompanionJsonPathForMediaFile } from './get-companion-json-path-for-media-file'
 
@@ -17,9 +16,7 @@ export async function getMediaFiles(directories: Directories): Promise<MediaFile
   for (const mediaFilePath of mediaFilePaths) {
     const mediaFileName = basename(mediaFilePath);
     const mediaFileExtension = extname(mediaFilePath);
-
     const supportsExif = doesFileSupportExif(mediaFilePath);
-    const hasExifDate = await doesFileHaveExifDate(mediaFilePath);
 
     const jsonFilePath = getCompanionJsonPathForMediaFile(mediaFilePath);
     const jsonFileName = jsonFilePath ? basename(jsonFilePath) : null;
@@ -30,7 +27,6 @@ export async function getMediaFiles(directories: Directories): Promise<MediaFile
       mediaFileName,
       mediaFileExtension,
       supportsExif,
-      hasExifDate,
       jsonFilePath,
       jsonFileName,
       jsonFileExists,
