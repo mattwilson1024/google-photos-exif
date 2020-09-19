@@ -1,0 +1,51 @@
+{
+  "name": "google-photos-exif",
+  "description": "A tool to fix missing date taken EXIF metadata from Google Photos takeout",
+  "version": "0.0.0",
+  "author": "Matt Wilson @mattwilson1024",
+  "bin": {
+    "google-photos-exif": "./bin/run"
+  },
+  "bugs": "https://github.com/mattwilson1024/google-photos-exif/issues",
+  "dependencies": {
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-help": "^3",
+    "exiftool-vendored": "^12.1.0",
+    "tslib": "^1"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1",
+    "@types/node": "^10",
+    "eslint": "^5.13",
+    "eslint-config-oclif": "^3.1",
+    "eslint-config-oclif-typescript": "^0.1",
+    "ts-node": "^8",
+    "typescript": "^3.3"
+  },
+  "engines": {
+    "node": ">=10.1.0"
+  },
+  "files": [
+    "/bin",
+    "/lib"
+  ],
+  "homepage": "https://github.com/mattwilson1024/google-photos-exif",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "bin": "google-photos-exif"
+  },
+  "repository": "mattwilson1024/google-photos-exif",
+  "scripts": {
+    "posttest": "eslint . --ext .ts --config .eslintrc",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev readme",
+    "test": "echo NO TESTS",
+    "version": "oclif-dev readme && git add README.md",
+    "start": "./bin/run"
+  },
+  "types": "lib/index.d.ts"
+}
