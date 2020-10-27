@@ -7,4 +7,7 @@ export interface MediaFileInfo {
   jsonFilePath: string|null;
   jsonFileName: string|null;
   jsonFileExists: boolean;
+
+  outputFileName: string;
+  outputFilePath: string;
 }
