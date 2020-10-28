@@ -1,27 +1,25 @@
-import {Command, flags} from '@oclif/command';
+import { Command, flags } from '@oclif/command';
 import * as Parser from '@oclif/parser';
 import { existsSync, promises as fspromises } from 'fs';
-import { basename, resolve } from 'path';
-import { getAllFilesRecursively } from './helpers/get-all-files-recursively';
+import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
+import { findSupportedMediaFiles } from './helpers/find-supported-media-files';
+import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json';
+import { updateExifMetadata } from './helpers/update-exif-metadata';
+import { updateFileModificationDate } from './helpers/update-file-modification-date';
 import { Directories } from './models/directories'
-import { getMediaFiles } from './helpers/get-media-files'
-import { moveFile } from './helpers/move-file'
-import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json'
-import { updateExifMetadata } from './helpers/update-exif-metadata'
-import { updateFileModificationDate } from './helpers/update-file-modification-date'
-import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date'
+import { SUPPORTED_MEDIA_FILE_EXTENSIONS } from './models/supported-media-file-extensions';
 
 const { readdir, mkdir, copyFile } = fspromises;
 
 class GooglePhotosExif extends Command {
-  static description = `Takes in a directory containing the contents of a Google Photos Takeout and, for any images that are lacking metadata for the date/time the photo was taken, writes that date to the EXIF metadata from Google's JSON metadata. For gifs / movies, the _file_ modified date is adjusted to account for these formats not including EXIF metadata.`;
+  static description = `Takes in a directory path for an extracted Google Photos Takeout. Extracts all JPEGs, GIFs and MP4 files and places them into an output directory. All files will have their modified timestamp set to match the timestamp specified in Google's JSON metadata files (where present). In addition, for file types that support EXIF, the EXIF "DateTimeOriginal" field will be set to the timestamp from Google's JSON metadata, if the field is not already set in the EXIF metadata.`;
 
   static flags = {
     version: flags.version({char: 'v'}),
     help: flags.help({char: 'h'}),
     inputDir: flags.string({
       char: 's',
-      description: 'Directory containing all extracted zips from Google Photos Takeout',
+      description: 'Directory containing the extracted contents of Google Photos Takeout zip file',
       required: true,
     }),
     outputDir: flags.string({
@@ -40,7 +38,6 @@ class GooglePhotosExif extends Command {
     try {
       const directories = this.determineDirectoryPaths(inputDir, outputDir);
       await this.prepareDirectories(directories);
-      await this.flattenAllFilesIntoSingleDirectory(directories);
       await this.processMediaFiles(directories);
     } catch (error) {
       this.error(error);
@@ -55,10 +52,6 @@ class GooglePhotosExif extends Command {
     return {
       input: inputDir,
       output: outputDir,
-      unprocessed: resolve(outputDir, 'unprocessed'),
-      media: resolve(outputDir, 'media'),
-      mediaWithUpdatedExif: resolve(outputDir, 'media-with-updated-exif'),
-      json: resolve(outputDir, 'json'),
     };
   }
 
@@ -80,75 +73,55 @@ class GooglePhotosExif extends Command {
         throw new Error('If the output directory already exists, it must be empty');
       }
     } else {
-      this.log(`--- Creating output root directory: ${directories.output} ---`);
+      this.log(`--- Creating output directory: ${directories.output} ---`);
       await mkdir(directories.output);
-    }
-
-    this.log(`--- Preparing categorised directories inside the output directory ---`);
-    await mkdir(directories.unprocessed);
-    await mkdir(directories.media);
-    await mkdir(directories.mediaWithUpdatedExif);
-    await mkdir(directories.json);
-  }
-
-  private async flattenAllFilesIntoSingleDirectory(directories: Directories): Promise<void> {
-    this.log('--- Flattening all files from inputDir (including subdirectories) into a single "unprocessed" directory before processing ---')
-    const allFiles = await getAllFilesRecursively(directories.input);
-    for (const srcFilePath of allFiles) {
-      const srcFileName = basename(srcFilePath);
-      const destFilePath = resolve(directories.unprocessed, srcFileName);
-
-      this.log(`Copying file: ${srcFilePath}`);
-      await copyFile(srcFilePath, destFilePath);
     }
   }
 
   private async processMediaFiles(directories: Directories): Promise<void> {
-    this.log('--- Finding media files ---')
-    const mediaFiles = await getMediaFiles(directories);
+    this.log(`--- Finding supported media files (${SUPPORTED_MEDIA_FILE_EXTENSIONS.join(', ')}) ---`)
+    const mediaFiles = await findSupportedMediaFiles(directories.input, directories.output);
 
     const jpegs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.jpeg' || mediaFile.mediaFileExtension.toLowerCase() === '.jpg');
     const gifs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.gif');
     const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
     this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s ---`);
 
-    this.log(`--- Processing files. This might take a while... ---`);
-    let exifUpdateCount = 0;
+    this.log(`--- Processing media files ---`);
+    const fileNamesWithEditedExif: string[] = [];
 
-    for (const mediaFile of mediaFiles) {
+    for (let i = 0, mediaFile; mediaFile = mediaFiles[i]; i++) {
 
-      let exifUpdated = false;
+      // Copy the file into output directory
+      this.log(`Copying file ${i} of ${mediaFiles.length}: ${mediaFile.mediaFilePath} -> ${mediaFile.outputFileName}`);
+      await copyFile(mediaFile.mediaFilePath, mediaFile.outputFilePath);
+
+      // Process the output file, setting the modified timestamp and/or EXIF metadata where necessary
       const photoTimeTaken = await readPhotoTakenTimeFromGoogleJson(mediaFile);
 
       if (photoTimeTaken) {
         if (mediaFile.supportsExif) {
           const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
           if (!hasExifDate) {
-            await updateExifMetadata(mediaFile.mediaFilePath, photoTimeTaken);
-            exifUpdated = true;
-            this.log(`${mediaFile.mediaFileName}: Wrote "DateTimeOriginal" EXIF metadata`);
+            await updateExifMetadata(mediaFile.outputFilePath, photoTimeTaken);
+            fileNamesWithEditedExif.push(mediaFile.outputFileName);
+            this.log(`Wrote "DateTimeOriginal" EXIF metadata to: ${mediaFile.outputFileName}`);
           }
         }
 
-        await updateFileModificationDate(mediaFile.mediaFilePath, photoTimeTaken);
+        await updateFileModificationDate(mediaFile.outputFilePath, photoTimeTaken);
       }
-
-      if (exifUpdated) {
-        await moveFile(mediaFile.mediaFilePath, directories.mediaWithUpdatedExif);
-        exifUpdateCount++;
-      } else {
-        await moveFile(mediaFile.mediaFilePath, directories.media);
-      }
-
-      if (mediaFile.jsonFilePath && mediaFile.jsonFileExists) {
-        await moveFile(mediaFile.jsonFilePath, directories.json);
-      }
-
     }
 
+    // Log a summary
     this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s) ---`);
     this.log(`--- The file modified timestamp has been updated on all media files ---`)
-    this.log(`--- ${exifUpdateCount} files support EXIF, but had no DateTimeOriginal field. These files have been updated with the data found in the JSON metadata. ---`);
+    if (fileNamesWithEditedExif.length > 0) {
+      this.log(`--- Found ${fileNamesWithEditedExif.length} files which support EXIF, but had no DateTimeOriginal field. For each of the following files, the DateTimeOriginalField has been updated using the date found in the JSON metadata: ---`);
+      fileNamesWithEditedExif.forEach(fileNameWithEditedExif => this.log(fileNameWithEditedExif));
+    } else {
+      this.log(`--- We did not edit EXIF metadata for any of the files. This could be because all files already had a value set for the DateTimeOriginal field, or because we did not have a corresponding JSON file. ---`);
+    }
   }
 }
 

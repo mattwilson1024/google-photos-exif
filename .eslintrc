@@ -8,6 +8,7 @@
     "semi": "off",
     "no-await-in-loop": "off",
     "quotes": "off",
-    "padded-blocks": "off"
+    "padded-blocks": "off",
+    "no-cond-assign": "off"
   }
 }
