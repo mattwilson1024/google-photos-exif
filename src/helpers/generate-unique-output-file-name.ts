@@ -1,7 +1,7 @@
 import { basename, extname } from 'path';
 
 /**
- * Given the name of a file that we want to copy to the output directory, generate a unique putput filename.
+ * Given the name of a file that we want to copy to the output directory, generate a unique output filename.
  * The function takes in the filename that we wish to copy and an array of all output files so far (all converted to lower case).
  *
  * If the filename doesn't already exist in the array, it just returns the original file name.
