@@ -85,7 +85,8 @@ class GooglePhotosExif extends Command {
     const jpegs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.jpeg' || mediaFile.mediaFileExtension.toLowerCase() === '.jpg');
     const gifs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.gif');
     const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
-    this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s ---`);
+    const avis = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.avi');
+    this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s and ${avis.length} AVIs ---`);
 
     this.log(`--- Processing media files ---`);
     const fileNamesWithEditedExif: string[] = [];
@@ -114,7 +115,7 @@ class GooglePhotosExif extends Command {
     }
 
     // Log a summary
-    this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s) ---`);
+    this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s and ${avis.length} AVIs) ---`);
     this.log(`--- The file modified timestamp has been updated on all media files ---`)
     if (fileNamesWithEditedExif.length > 0) {
       this.log(`--- Found ${fileNamesWithEditedExif.length} files which support EXIF, but had no DateTimeOriginal field. For each of the following files, the DateTimeOriginalField has been updated using the date found in the JSON metadata: ---`);
