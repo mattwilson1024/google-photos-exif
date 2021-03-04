@@ -119,6 +119,7 @@ This tool currently only extracts the following "media file" types. Any other fi
 - .jpeg
 - .gif
 - .mp4
+- .avi
 
 ## What does the tool do?
 
