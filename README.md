@@ -21,7 +21,7 @@ Example usage:
 
 ```
 yarn
-yarn start --inputDir ~/takeout --outputDir ~/output
+yarn start --inputDir ~/takeout --outputDir ~/output --errorDir ~/error
 ```
 
 
@@ -96,10 +96,10 @@ The first step to using this tool is to request & download a `Google Takeout`. A
 The tool takes in three parameters:
 
 1. an `inputDir` directory path containing the extracted Google Takeout.
-2. an `outputDir` directory path where processed files will be moved to.
+2. an `outputDir` directory path where processed files will be moved to. This needs to be an empty directory and can be anywhere on the disk. 
 3. an `errorDir` directory path where images with bad EXIF data that fail to process will be moved to. The folder can be empty.
 
-This needs to be a single directory containing an _extracted_ zip from Google takeout. As described in the section above, it is important that the zip has been extracted into a directory (this tool doesn't extract zips for you) and that it is a single folder containing the whole Takeout (or if coming from multiple archives, that they have been properly merged together). 
+The `inputDir` needs to be a single directory containing an _extracted_ zip from Google takeout. As described in the section above, it is important that the zip has been extracted into a directory (this tool doesn't extract zips for you) and that it is a single folder containing the whole Takeout (or if coming from multiple archives, that they have been properly merged together). 
 
 For example:
 ```
@@ -109,10 +109,6 @@ Takeout
     2020-01-01
     ...
 ```
-
-2. an `outputDir` directory path, which is where the tool will write its output
-
-This needs to be an empty directory anywhere on disk.
 
 ## Supported file types
 
@@ -138,6 +134,8 @@ The tool will do the following:
    c. Update the file modification date to the `photoTakenTime` found in the JSON metadata
    
    d. If the file supports EXIF (e.g. JPEG images), read the EXIF metadata and write the `DateTimeOriginal` field if it does not already have a value in this field 
+
+   e. If an error occurs whilst processing the file, copy it to the directory specified in the `errorDir` argument, so that it can be inspected manually or removed
 
 3. Display a summary of work completed
 
@@ -168,7 +166,6 @@ I found that some of my images were named with a numeric suffix, such as `foo(1)
 Counter-intuitively, the corresponding JSON file for this doesn't follow the same pattern. Instead of `foo(1).json` or `foo(1).jpg.json`, it is instead named `foo.jpg(1).json`.
 
 To support that, this tool will also check for files that have a number suffix in brackets and where that is the case, look for a JSON file with the pattern above.
-
 
 ## Disclaimer
 
