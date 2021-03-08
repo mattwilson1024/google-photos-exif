@@ -18,13 +18,18 @@ class GooglePhotosExif extends Command {
     version: flags.version({char: 'v'}),
     help: flags.help({char: 'h'}),
     inputDir: flags.string({
-      char: 's',
+      char: 'i',
       description: 'Directory containing the extracted contents of Google Photos Takeout zip file',
       required: true,
     }),
     outputDir: flags.string({
-      char: 'd',
+      char: 'o',
       description: 'Directory into which the processed output will be written',
+      required: true,
+    }),
+    errorDir: flags.string({
+      char: 'e',
+      description: 'Directory for any files that have bad EXIF data - including the matching metadata files',
       required: true,
     }),
   }
@@ -33,10 +38,10 @@ class GooglePhotosExif extends Command {
 
   async run() {
     const { args, flags} = this.parse(GooglePhotosExif);
-    const { inputDir, outputDir } = flags;
+    const { inputDir, outputDir, errorDir } = flags;
 
     try {
-      const directories = this.determineDirectoryPaths(inputDir, outputDir);
+      const directories = this.determineDirectoryPaths(inputDir, outputDir, errorDir);
       await this.prepareDirectories(directories);
       await this.processMediaFiles(directories);
     } catch (error) {
@@ -48,10 +53,11 @@ class GooglePhotosExif extends Command {
     this.exit(0);
   }
 
-  private determineDirectoryPaths(inputDir: string, outputDir: string): Directories {
+  private determineDirectoryPaths(inputDir: string, outputDir: string, errorDir: string): Directories {
     return {
       input: inputDir,
       output: outputDir,
+      error: errorDir
     };
   }
 
@@ -85,8 +91,10 @@ class GooglePhotosExif extends Command {
     const jpegs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.jpeg' || mediaFile.mediaFileExtension.toLowerCase() === '.jpg');
     const gifs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.gif');
     const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
+    const pngs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.png');
     const avis = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.avi');
-    this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s and ${avis.length} AVIs ---`);
+    
+    this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs, ${pngs.length} PNGs, ${mp4s.length} MP4s and ${avis.length} AVIs ---`);
 
     this.log(`--- Processing media files ---`);
     const fileNamesWithEditedExif: string[] = [];
@@ -104,7 +112,7 @@ class GooglePhotosExif extends Command {
         if (mediaFile.supportsExif) {
           const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
           if (!hasExifDate) {
-            await updateExifMetadata(mediaFile.outputFilePath, photoTimeTaken);
+            await updateExifMetadata(mediaFile, photoTimeTaken, directories.error);
             fileNamesWithEditedExif.push(mediaFile.outputFileName);
             this.log(`Wrote "DateTimeOriginal" EXIF metadata to: ${mediaFile.outputFileName}`);
           }
@@ -115,7 +123,7 @@ class GooglePhotosExif extends Command {
     }
 
     // Log a summary
-    this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs and ${mp4s.length} MP4s and ${avis.length} AVIs) ---`);
+    this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs, ${pngs.length} PNGs, ${mp4s.length} MP4s and ${avis.length} AVIs) ---`);
     this.log(`--- The file modified timestamp has been updated on all media files ---`)
     if (fileNamesWithEditedExif.length > 0) {
       this.log(`--- Found ${fileNamesWithEditedExif.length} files which support EXIF, but had no DateTimeOriginal field. For each of the following files, the DateTimeOriginalField has been updated using the date found in the JSON metadata: ---`);

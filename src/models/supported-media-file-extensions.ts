@@ -1,1 +1,1 @@
-export const SUPPORTED_MEDIA_FILE_EXTENSIONS = ['.jpeg', '.jpg', '.gif', '.mp4', '.avi'];
+export const SUPPORTED_MEDIA_FILE_EXTENSIONS = ['.jpeg', '.jpg', '.gif', '.mp4', '.png', '.avi'];

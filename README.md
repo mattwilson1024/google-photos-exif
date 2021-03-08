@@ -93,9 +93,11 @@ The first step to using this tool is to request & download a `Google Takeout`. A
 
 ## What inputs do I need to provide?
 
-The tool takes in two parameters:
+The tool takes in three parameters:
 
 1. an `inputDir` directory path containing the extracted Google Takeout.
+2. an `outputDir` directory path where processed files will be moved to.
+3. an `errorDir` directory path where images with bad EXIF data that fail to process will be moved to. The folder can be empty.
 
 This needs to be a single directory containing an _extracted_ zip from Google takeout. As described in the section above, it is important that the zip has been extracted into a directory (this tool doesn't extract zips for you) and that it is a single folder containing the whole Takeout (or if coming from multiple archives, that they have been properly merged together). 
 
@@ -118,6 +120,7 @@ This tool currently only extracts the following "media file" types. Any other fi
 - .jpg
 - .jpeg
 - .gif
+- .png
 - .mp4
 - .avi
 
