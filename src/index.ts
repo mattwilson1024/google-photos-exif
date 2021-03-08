@@ -18,17 +18,17 @@ class GooglePhotosExif extends Command {
     version: flags.version({char: 'v'}),
     help: flags.help({char: 'h'}),
     inputDir: flags.string({
-      char: 's',
+      char: 'i',
       description: 'Directory containing the extracted contents of Google Photos Takeout zip file',
       required: true,
     }),
     outputDir: flags.string({
-      char: 'd',
+      char: 'o',
       description: 'Directory into which the processed output will be written',
       required: true,
     }),
     errorDir: flags.string({
-      char: 'd',
+      char: 'e',
       description: 'Directory for any files that have bad EXIF data - including the matching metadata files',
       required: true,
     }),
