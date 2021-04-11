@@ -57,7 +57,7 @@ class GooglePhotosExif extends Command {
     return {
       input: inputDir,
       output: outputDir,
-      error: errorDir
+      error: errorDir,
     };
   }
 
@@ -70,17 +70,26 @@ class GooglePhotosExif extends Command {
       throw new Error('You must specify an output directory using the --outputDir flag');
     }
 
-    const outputFolderExists = existsSync(directories.output);
-    if (outputFolderExists) {
-      const outputFolderContents = await readdir(directories.output);
-      const outputFolderContentsExcludingDSStore = outputFolderContents.filter(filename => filename !== '.DS_Store');
-      const outputFolderIsEmpty = outputFolderContentsExcludingDSStore.length === 0;
-      if (!outputFolderIsEmpty) {
-        throw new Error('If the output directory already exists, it must be empty');
+    if (!directories.error) {
+      throw new Error('You must specify an error directory using the --errorDir flag');
+    }
+
+    await this.checkDirIsEmptyAndCreateDirIfNotFound(directories.output, 'If the output directory already exists, it must be empty');
+    await this.checkDirIsEmptyAndCreateDirIfNotFound(directories.error, 'If the error directory already exists, it must be empty');
+  }
+
+  private async checkDirIsEmptyAndCreateDirIfNotFound(directoryPath: string, messageIfNotEmpty: string): Promise<void> {
+    const folderExists = existsSync(directoryPath);
+    if (folderExists) {
+      const folderContents = await readdir(directoryPath);
+      const folderContentsExcludingDSStore = folderContents.filter(filename => filename !== '.DS_Store');
+      const folderIsEmpty = folderContentsExcludingDSStore.length === 0;
+      if (!folderIsEmpty) {
+        throw new Error(messageIfNotEmpty);
       }
     } else {
-      this.log(`--- Creating output directory: ${directories.output} ---`);
-      await mkdir(directories.output);
+      this.log(`--- Creating directory: ${directoryPath} ---`);
+      await mkdir(directoryPath);
     }
   }
 
@@ -93,7 +102,7 @@ class GooglePhotosExif extends Command {
     const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
     const pngs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.png');
     const avis = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.avi');
-    
+
     this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs, ${pngs.length} PNGs, ${mp4s.length} MP4s and ${avis.length} AVIs ---`);
 
     this.log(`--- Processing media files ---`);
