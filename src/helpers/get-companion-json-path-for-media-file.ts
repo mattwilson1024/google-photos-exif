@@ -29,6 +29,20 @@ export function getCompanionJsonPathForMediaFile(mediaFilePath: string): string|
     potentialJsonFileNames.push(`${name}${mediaFileExtension}${counter}.json`);
   }
 
+  // Sometimes the media filename ends with extra dash (eg. filename_n-.jpg + filename_n.json)
+  const endsWithExtraDash = mediaFileNameWithoutExtension.endsWith('_n-');
+
+  // Sometimes the media filename ends with extra `n` char (eg. filename_n.jpg + filename_.json)
+  const endsWithExtraNChar = mediaFileNameWithoutExtension.endsWith('_n');
+
+  // And sometimes the media filename has extra underscore in it (e.g. filename_.jpg + filename.json)
+  const endsWithExtraUnderscore = mediaFileNameWithoutExtension.endsWith('_');
+
+  if (endsWithExtraDash || endsWithExtraNChar || endsWithExtraUnderscore) {
+    // We need to remove that extra char at the end
+    potentialJsonFileNames.push(`${mediaFileNameWithoutExtension.slice(0, -1)}.json`);
+  }
+
   // Now look to see if we have a JSON file in the same directory as the image for any of the potential JSON file names
   // that we identified earlier
   for (const potentialJsonFileName of potentialJsonFileNames) {
