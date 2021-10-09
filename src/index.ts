@@ -1,18 +1,18 @@
 import { Command, flags } from '@oclif/command';
 import * as Parser from '@oclif/parser';
 import { existsSync, promises as fspromises } from 'fs';
+import { CONFIG } from './config';
 import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
 import { findSupportedMediaFiles } from './helpers/find-supported-media-files';
 import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json';
 import { updateExifMetadata } from './helpers/update-exif-metadata';
 import { updateFileModificationDate } from './helpers/update-file-modification-date';
 import { Directories } from './models/directories'
-import { SUPPORTED_MEDIA_FILE_EXTENSIONS } from './models/supported-media-file-extensions';
 
 const { readdir, mkdir, copyFile } = fspromises;
 
 class GooglePhotosExif extends Command {
-  static description = `Takes in a directory path for an extracted Google Photos Takeout. Extracts all JPEGs, GIFs and MP4 files and places them into an output directory. All files will have their modified timestamp set to match the timestamp specified in Google's JSON metadata files (where present). In addition, for file types that support EXIF, the EXIF "DateTimeOriginal" field will be set to the timestamp from Google's JSON metadata, if the field is not already set in the EXIF metadata.`;
+  static description = `Takes in a directory path for an extracted Google Photos Takeout. Extracts all photo/video files (based on the conigured list of file extensions) and places them into an output directory. All files will have their modified timestamp set to match the timestamp specified in Google's JSON metadata files (where present). In addition, for file types that support EXIF, the EXIF "DateTimeOriginal" field will be set to the timestamp from Google's JSON metadata, if the field is not already set in the EXIF metadata.`;
 
   static flags = {
     version: flags.version({char: 'v'}),
@@ -94,16 +94,22 @@ class GooglePhotosExif extends Command {
   }
 
   private async processMediaFiles(directories: Directories): Promise<void> {
-    this.log(`--- Finding supported media files (${SUPPORTED_MEDIA_FILE_EXTENSIONS.join(', ')}) ---`)
+    // Find media files
+    const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension);
+    this.log(`--- Finding supported media files (${supportedMediaFileExtensions.join(', ')}) ---`)
     const mediaFiles = await findSupportedMediaFiles(directories.input, directories.output);
 
-    const jpegs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.jpeg' || mediaFile.mediaFileExtension.toLowerCase() === '.jpg');
-    const gifs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.gif');
-    const mp4s = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.mp4');
-    const pngs = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.png');
-    const avis = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === '.avi');
+    // Count how many files were found for each supported file extension
+    const mediaFileCountsByExtension = new Map<string, number>();
+    supportedMediaFileExtensions.forEach(supportedExtension => {
+      const count = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === supportedExtension.toLowerCase()).length;
+      mediaFileCountsByExtension.set(supportedExtension, count);
+    });
 
-    this.log(`--- Found ${jpegs.length} JPEGs, ${gifs.length} GIFs, ${pngs.length} PNGs, ${mp4s.length} MP4s and ${avis.length} AVIs ---`);
+    this.log(`--- Scan complete, found: ---`);
+    mediaFileCountsByExtension.forEach((count, extension) => {
+      this.log(`${count} files with extension ${extension}`);
+    });
 
     this.log(`--- Processing media files ---`);
     const fileNamesWithEditedExif: string[] = [];
@@ -132,7 +138,10 @@ class GooglePhotosExif extends Command {
     }
 
     // Log a summary
-    this.log(`--- Processed ${mediaFiles.length} media files (${jpegs.length} JPEGs, ${gifs.length} GIFs, ${pngs.length} PNGs, ${mp4s.length} MP4s and ${avis.length} AVIs) ---`);
+    this.log(`--- Finished processing media files: ---`);
+    mediaFileCountsByExtension.forEach((count, extension) => {
+      this.log(`${count} files with extension ${extension}`);
+    });
     this.log(`--- The file modified timestamp has been updated on all media files ---`)
     if (fileNamesWithEditedExif.length > 0) {
       this.log(`--- Found ${fileNamesWithEditedExif.length} files which support EXIF, but had no DateTimeOriginal field. For each of the following files, the DateTimeOriginalField has been updated using the date found in the JSON metadata: ---`);

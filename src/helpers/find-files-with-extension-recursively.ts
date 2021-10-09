@@ -1,5 +1,5 @@
-import { getAllFilesRecursively } from './get-all-files-recursively';
 import { extname } from 'path';
+import { getAllFilesRecursively } from './get-all-files-recursively';
 
 export async function findFilesWithExtensionRecursively(dirToSearch: string, extensionsToInclude: string[]): Promise<string[]> {
   const allFiles = await getAllFilesRecursively(dirToSearch);
@@ -10,7 +10,7 @@ export async function findFilesWithExtensionRecursively(dirToSearch: string, ext
 
   const matchingFiles = allFiles.filter(filePath => {
     const extension = extname(filePath).toLowerCase();
-    return extensionsToInclude.map(ext => ext.toLowerCase()).includes(extension);
+    return extensionsToInclude.map(ext => ext.toLowerCase()).includes(extension.toLowerCase());
   });
   return matchingFiles;
 }
