@@ -110,21 +110,33 @@ Takeout
     ...
 ```
 
-## Supported file types
+## Configuring supported file types
 
-This tool currently only extracts the following "media file" types. Any other files will be ignored and not included in the output:
-- .jpg
-- .jpeg
-- .gif
-- .png
-- .mp4
-- .avi
+In order to avoid touching files that are not photos or videos, this tool will only process files whose extensions are whitelisted in the configuration options. Any other files will be ignored and not included in the output.
+
+To customise which files are processed, edit the `src/config.ts` file to suit your needs. For each extension you can also configure whether or not to attempt to read/write EXIF metadata for that file type.
+
+The default configuration is as follows:
+```
+┌──────────┬─────────┐
+│Extension │EXIF     │
+├──────────┼─────────┤
+│.jpeg     │true     │
+│.jpg      │true     │
+│.heic     │true     │
+│.gif      │false    │
+│.mp4      │false    │
+│.png      │false    │
+│.avi      │false    │
+│.mov      │false    │
+└──────────┴─────────┘
+```
 
 ## What does the tool do?
 
 The tool will do the following:
-1. Find all "media files" with one of the supported extensions listed above from the (nested) `inputDir` folder structure.
-
+1. Find all "media files" with one of the supported extensions (see "Configuring supported file types" above) from the (nested) `inputDir` folder structure.
+  
 2. For each "media file":
    
    a. Look for a corresponding sidecar JSON metadata file (see the section below for more on this) and if found, read the `photoTakenTime` field
