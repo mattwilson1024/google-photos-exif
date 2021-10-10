@@ -7,6 +7,7 @@ import { resolve } from 'path';
 const { unlink, copyFile } = fspromises;
 
 export async function updateExifMetadata(fileInfo: FileInfo, timeTaken: string, errorDir: string): Promise<void> {
+  if (!fileInfo.outputFilePath) return;
   if (!doesFileSupportExif(fileInfo.outputFilePath)) {
     return;
   }
