@@ -93,10 +93,11 @@ class GooglePhotosExif extends Command {
     }
   }
 
+  
+  
   private async processMediaFiles(directories: Directories): Promise<void> {
-    const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension);
+    const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension.toLowerCase());
 
-    
     // Populate the FileInfo structure with all files in the source directory, except JSONs)
     this.log(`--- Getting all files in directory ${directories.input} ---`);
     const allFiles = await getAllFilesExceptJson(directories.input, directories.output);
@@ -104,9 +105,9 @@ class GooglePhotosExif extends Command {
     // Print the number of found files by extension
     const allExtensionTypes = new Set();
     for (const fi of allFiles) { allExtensionTypes.add(fi.fileExtensionLowerCased);  }
-    const allExtensionTypesSorted = <string>[...allExtensionTypes].sort();
+    const allExtensionTypesSorted = [...allExtensionTypes].sort();
     let totalCount = 0;
-    for (const ext of allExtensionTypes) { 
+    for (const ext of allExtensionTypesSorted) { 
       const count = allFiles.filter( fi => fi.fileExtension === ext ).length;
       totalCount += count;
       const warn = ext != ".json" ? !supportedMediaFileExtensions.includes(ext) ? "*** unsupported extension" : "" : "";
