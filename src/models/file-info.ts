@@ -1,7 +1,7 @@
 export interface FileInfo {
-  mediaFilePath: string;
-  mediaFileName: string;
-  mediaFileExtension: string;
+  filePath: string;
+  fileName: string;
+  fileExtension: string;
   isMediaFile: boolean;
   supportsExif: boolean;
 
