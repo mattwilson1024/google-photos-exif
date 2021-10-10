@@ -8,7 +8,7 @@ import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-tim
 import { updateExifMetadata } from './helpers/update-exif-metadata';
 import { updateFileModificationDate } from './helpers/update-file-modification-date';
 import { Directories } from './models/directories'
-import { MediaFileInfo } from '../models/media-file-info'
+import { MediaFileInfo } from './models/media-file-info'
 
 const { readdir, mkdir, copyFile } = fspromises;
 
