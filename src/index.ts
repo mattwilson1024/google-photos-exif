@@ -127,7 +127,7 @@ class GooglePhotosExif extends Command {
       if (fi.isMediaFile) mediaFiles.push(fi);
       
       else {
-        this.log (`    copying ${fi.fileName} to the errors directory due to unrecognized extension.`);
+        this.log (`    copying ${fi.fileName} to the errors directory due to unsupported extension.`);
         copyWithJsonSidecar (fi, directories.error);   
       }
       if (!fi.jsonFileExists) {
@@ -136,7 +136,7 @@ class GooglePhotosExif extends Command {
         copyWithJsonSidecar (fi, directories.error);   
       }
     }
-    this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length} supported media files, and ${totalMissingJson} media files whose JSON sidecar could not be located. ---`);
+    this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length} supported media files, of which ${totalMissingJson} media files' JSON sidecar could not be located. ---`);
   
     // Show the media file counts
     const mediaFileCountsByExtension = new Map<string, number>();
@@ -181,7 +181,7 @@ class GooglePhotosExif extends Command {
     mediaFileCountsByExtension.forEach((count, extension) => {
       this.log(`${count} files with extension ${extension}`);
     });
-    this.log(`--- The file modified timestamp has been updated on all media files ---`)
+    this.log(`--- The file modified timestamp has been updated on all media files whose JSON sidecar could be found. ---`)
     if (fileNamesWithEditedExif.length > 0) {
       this.log(`--- Found ${fileNamesWithEditedExif.length} files which support EXIF, but had no DateTimeOriginal field. For each of the following files, the DateTimeOriginalField has been updated using the date found in the JSON metadata: ---`);
       fileNamesWithEditedExif.forEach(fileNameWithEditedExif => this.log(fileNameWithEditedExif));
