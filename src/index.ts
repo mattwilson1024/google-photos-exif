@@ -2,12 +2,13 @@ import { Command, flags } from '@oclif/command';
 import * as Parser from '@oclif/parser';
 import { existsSync, promises as fspromises } from 'fs';
 import { CONFIG } from './config';
+import { FileInfo } from './models/file-info';
+import { Directories } from './models/directories'
 import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
 import { getAllFilesExceptJson } from './helpers/get-all-files-except-json';
 import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json';
 import { updateExifMetadata } from './helpers/update-exif-metadata';
 import { updateFileModificationDate } from './helpers/update-file-modification-date';
-import { Directories } from './models/directories'
 
 const { readdir, mkdir, copyFile } = fspromises;
 
