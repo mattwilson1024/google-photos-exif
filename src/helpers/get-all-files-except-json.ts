@@ -34,7 +34,7 @@ export async function getAllFilesExceptJson(inputDir: string, outputDir: string)
     const jsonFileExists = jsonFilePath ? existsSync(jsonFilePath) : false;
     
     const outputFileName = isMediaFile ? generateUniqueOutputFileName(filePath, allUsedOutputFilesLowerCased) : null;
-    const outputFilePath = isMediaFile ? resolve(outputDir, outputFileName) : null;
+    const outputFilePath = isMediaFile ? resolve(outputDir, <string>outputFileName) : null;
 
     allFiles.push({
       filePath,
@@ -49,7 +49,7 @@ export async function getAllFilesExceptJson(inputDir: string, outputDir: string)
       outputFileName,
       outputFilePath,
     });
-    allUsedOutputFilesLowerCased.push(outputFileName.toLowerCase());
+    if (outputFileName) allUsedOutputFilesLowerCased.push(outputFileName.toLowerCase());
   }
 
   return allFiles;
