@@ -100,6 +100,7 @@ class GooglePhotosExif extends Command {
     
     // Print the number of found files by extension
     const allExtensionTypes = new Set();
+    allExtensionTypes.sort();
     for (const fi of allFiles) { allExtensionTypes.add(fi.fileExtension);  }
     let totalCount = 0;
     for (const ext of allExtensionTypes) { 
