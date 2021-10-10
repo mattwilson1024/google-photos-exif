@@ -1,41 +1,44 @@
 import { existsSync } from 'fs';
 import { basename, extname, resolve } from 'path';
 import { CONFIG } from '../config';
-// import { MediaFileInfo } from '../models/media-file-info';
 import { FileInfo } from '../models/file-info';
-
 import { doesFileSupportExif } from './does-file-support-exif';
-import { findFilesWithExtensionRecursively } from './find-files-with-extension-recursively';
+import { getAllFilesRecursively } from './get-all-files-recursively';
 import { generateUniqueOutputFileName } from './generate-unique-output-file-name';
 import { getCompanionJsonPathForMediaFile } from './get-companion-json-path-for-media-file';
 
 export async function getAllFilesExceptJson(inputDir: string, outputDir: string): Promise<FileInfo[]> {
-  const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension);
+  const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension.toLowerCase());
 
+  const allFilePaths = await getAllFilesRecursively(inputDir);
+  const dirIsEmpty = allFilePaths.length === 0;
+  if (dirIsEmpty) {
+    throw new Error('The search directory is empty, so there is no work to do. Check that your --inputDir contains all of the Google Takeout data, and that any zips have been extracted before running this tool');
+  }
 
-const mediaFilePaths = await findFilesWithExtensionRecursively(inputDir, supportedMediaFileExtensions);
-
-
-
-  const mediaFiles: MediaFileInfo[] = [];
+  const allFiles: FileInfo[] = [];
   const allUsedOutputFilesLowerCased: string[] = [];
 
-  for (const mediaFilePath of mediaFilePaths) {
-    const mediaFileName = basename(mediaFilePath);
-    const mediaFileExtension = extname(mediaFilePath);
-    const supportsExif = doesFileSupportExif(mediaFilePath);
+  for (const filePath of allFilePaths) {
+    const fileName = basename(filePath);
+    const fileExtension = extname(mediaFilePath);
+    const fileExtensionLowerCased = fileExtension.toLowerCase();
+    const isMediaFile = supportedMediaFileExtensions.includes(fileExtensionLowerCased);    
+    const supportsExif = doesFileSupportExif(filePath);
 
-    const jsonFilePath = getCompanionJsonPathForMediaFile(mediaFilePath);
+    const jsonFilePath = getCompanionJsonPathForMediaFile(filePath);   // intentionally not including a check for isMediaFile here because some unsupported files may nevertheless contain JSON sidecars
     const jsonFileName = jsonFilePath ? basename(jsonFilePath) : null;
     const jsonFileExists = jsonFilePath ? existsSync(jsonFilePath) : false;
+    
+    const outputFileName = isMediaFile ? generateUniqueOutputFileName(mediaFilePath, allUsedOutputFilesLowerCased) : null;
+    const outputFilePath = isMediaFile ? resolve(outputDir, outputFileName) : null;
 
-    const outputFileName = generateUniqueOutputFileName(mediaFilePath, allUsedOutputFilesLowerCased);
-    const outputFilePath = resolve(outputDir, outputFileName);
-
-    mediaFiles.push({
-      mediaFilePath,
-      mediaFileName,
-      mediaFileExtension,
+    allFiles.push({
+      filePath,
+      fileName,
+      fileExtension,
+      fileExtensionLowerCased,
+      isMediaFile,
       supportsExif,
       jsonFilePath,
       jsonFileName,
@@ -46,5 +49,5 @@ const mediaFilePaths = await findFilesWithExtensionRecursively(inputDir, support
     allUsedOutputFilesLowerCased.push(outputFileName.toLowerCase());
   }
 
-  return mediaFiles;
+  return allFiles;
 }
