@@ -10,6 +10,6 @@ export interface FileInfo {
   jsonFileName: string|null;
   jsonFileExists: boolean;
 
-  outputFileName: string;
-  outputFilePath: string;
+  outputFileName: string|null;
+  outputFilePath: string|null;
 }
