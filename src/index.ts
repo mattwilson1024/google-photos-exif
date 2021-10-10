@@ -109,7 +109,7 @@ class GooglePhotosExif extends Command {
     for (const ext of allExtensionTypes) { 
       const count = allFiles.filter( fi => fi.fileExtension === ext ).length;
       totalCount += count;
-      const warn = ext != ".json" ? !supportedMediaFileExtensions.includes(ext) ? "*** unsupported extension";
+      const warn = ext != ".json" ? !supportedMediaFileExtensions.includes(ext) ? "*** unsupported extension" : "" : "";
       this.log (`    ${ext}  ${count} files  ${warn}`); 
     }
     this.log (`    Total of ${totalCount} non-JSON files found.`);
