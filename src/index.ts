@@ -134,7 +134,7 @@ class GooglePhotosExif extends Command {
           await copyFile(fi.jsonFilePath, resolve(directories.error, fi.jsonFileName)); }
       }
     }
-    this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length()} supported media files, and ${totalMissingJson} media files whose JSON sidecar could not be located. ---`);
+    this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length} supported media files, and ${totalMissingJson} media files whose JSON sidecar could not be located. ---`);
   
     // Show the media file counts
     const mediaFileCountsByExtension = new Map<string, number>();
