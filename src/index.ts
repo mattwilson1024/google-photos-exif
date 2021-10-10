@@ -10,6 +10,7 @@ import { getAllFilesExceptJson } from './helpers/get-all-files-except-json';
 import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json';
 import { updateExifMetadata } from './helpers/update-exif-metadata';
 import { updateFileModificationDate } from './helpers/update-file-modification-date';
+import { copyWithJsonSidecar } from './helpers/copy-with-json-sidecar';
 
 const { readdir, mkdir, copyFile } = fspromises;
 
@@ -125,13 +126,14 @@ class GooglePhotosExif extends Command {
     {
       if (fi.isMediaFile) mediaFiles.push(fi);
       
-      if (!fi.jsonFileExists) totalMissingJson++;
-      if (!fi.isMediaFile || !fi.jsonFileExists)
-      {
-        this.log (`   copying ${fi.fileName} to the errors directory.`);
-        await copyFile(fi.filePath,  resolve(directories.error, fi.fileName));
-        if (fi.jsonFileExists && fi.jsonFileName && fi.jsonFilePath) {
-          await copyFile(fi.jsonFilePath, resolve(directories.error, fi.jsonFileName)); }
+      else {
+        this.log (`    copying ${fi.fileName} to the errors directory due to unrecognized extension.`);
+        copyWithJsonSidecar (fi, directories.error);   
+      }
+      if (!fi.jsonFileExists) {
+        totalMissingJson++;
+        this.log (`    copying ${fi.fileName} to the errors directory due to missing JSON sidecar.`);
+        copyWithJsonSidecar (fi, directories.error);   
       }
     }
     this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length} supported media files, and ${totalMissingJson} media files whose JSON sidecar could not be located. ---`);
