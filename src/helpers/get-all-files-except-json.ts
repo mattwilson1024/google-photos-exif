@@ -25,6 +25,7 @@ export async function getAllFilesExceptJson(inputDir: string, outputDir: string)
   for (const filePath of allFilePaths) {
     const fileName = basename(filePath);
     const fileExtension = extname(filePath);
+    if (fileExtension == ".json") break;
     const fileExtensionLowerCased = fileExtension.toLowerCase();
     const isMediaFile = supportedMediaFileExtensions.includes(fileExtensionLowerCased);    
     const supportsExif = doesFileSupportExif(filePath);
