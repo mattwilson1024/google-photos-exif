@@ -16,7 +16,7 @@ export async function getAllFilesExceptJson(inputDir: string, outputDir: string)
     throw new Error('The search directory is empty, so there is no work to do. Check that your --inputDir contains all of the Google Takeout data, and that any zips have been extracted before running this tool');
   }
   else
-    allFilePaths.filter ( element => element.fileExtension.toLowerCase() != ".json" );
+    allFilePaths.filter ( element => extname(element).toLowerCase() != ".json" );
 
   
   const allFiles: FileInfo[] = [];
