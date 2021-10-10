@@ -106,18 +106,33 @@ class GooglePhotosExif extends Command {
     const allExtensionTypes = new Set();
     for (const fi of allFiles) { allExtensionTypes.add(fi.fileExtensionLowerCased);  }
     const allExtensionTypesSorted = [...allExtensionTypes].sort();
-    let totalCount = 0;
+    let totalFilesCount = 0;
     for (const ext of allExtensionTypesSorted) { 
       const count = allFiles.filter( fi => fi.fileExtensionLowerCased === ext ).length;
-      totalCount += count;
+      totalFilesCount += count;
       const warn = ext != ".json" ? !supportedMediaFileExtensions.includes(<string>ext) ? "*** unsupported extension" : "" : "";
       this.log (`    ${ext}  ${count} files  ${warn}`); 
     }
-    this.log (`    Total of ${totalCount} non-JSON files found.`);
+    this.log (`    Total of ${totalFilesCount} non-JSON files found.`);
       
-    // Filter down to the media files only
+    // Filter down to the media files only, and copy any files with unsupported extensions or missing JSON to the errors directory so that the user can manually inspect them
     this.log(`--- Finding supported media files (${supportedMediaFileExtensions.join(', ')}) ---`)
-    const mediaFiles = allFiles.filter(element => element.isMediaFile);
+    const mediaFiles: FileInfo[] = [];
+    let totalMissingJson = 0;
+    for (const fi of allFiles)
+    {
+      if (fi.isMediaFile) mediaFiles.push(fi);
+      
+      if (!fi.jsonFileExists) totalMissingJson++;
+      if (!fi.isMediaFile || !fi.jsonFileExists)
+      {
+        this.log (`   copying ${fi.fileName} to the errors directory.`);
+        await copyFile(fi.filePath,  resolve(directories.error, fi.fileName));
+        if (fi.jsonFileExists && fi.jsonFileName && fi.jsonFilePath) {
+          await copyFile(fi.jsonFilePath, resolve(directories.error, fi.jsonFileName)); }
+      }
+    }
+    this.log (`--- ${totalFilesCount} total files, ${mediaFiles.length()} supported media files, and ${totalMissingJson} media files whose JSON sidecar could not be located. ---`);
   
     // Show the media file counts
     const mediaFileCountsByExtension = new Map<string, number>();
