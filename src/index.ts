@@ -8,7 +8,6 @@ import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-tim
 import { updateExifMetadata } from './helpers/update-exif-metadata';
 import { updateFileModificationDate } from './helpers/update-file-modification-date';
 import { Directories } from './models/directories'
-import { MediaFileInfo } from './models/media-file-info'
 
 const { readdir, mkdir, copyFile } = fspromises;
 
@@ -118,7 +117,7 @@ class GooglePhotosExif extends Command {
     // Show the media file counts
     const mediaFileCountsByExtension = new Map<string, number>();
     supportedMediaFileExtensions.forEach(supportedExtension => {
-      const count = mediaFiles.filter(mediaFile => mediaFile.mediaFileExtension.toLowerCase() === supportedExtension.toLowerCase()).length;
+      const count = mediaFiles.filter(mediaFile => mediaFile.fileExtension.toLowerCase() === supportedExtension.toLowerCase()).length;
       mediaFileCountsByExtension.set(supportedExtension, count);
     });
 
@@ -133,8 +132,8 @@ class GooglePhotosExif extends Command {
     for (let i = 0, mediaFile; mediaFile = mediaFiles[i]; i++) {
 
       // Copy the file into output directory
-      this.log(`Copying file ${i} of ${mediaFiles.length}: ${mediaFile.mediaFilePath} -> ${mediaFile.outputFileName}`);
-      await copyFile(mediaFile.mediaFilePath, mediaFile.outputFilePath);
+      this.log(`Copying file ${i} of ${mediaFiles.length}: ${mediaFile.filePath} -> ${mediaFile.outputFileName}`);
+      await copyFile(mediaFile.filePath, mediaFile.outputFilePath);
 
       // Process the output file, setting the modified timestamp and/or EXIF metadata where necessary
       const photoTimeTaken = await readPhotoTakenTimeFromGoogleJson(mediaFile);
