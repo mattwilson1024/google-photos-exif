@@ -10,12 +10,15 @@ import { getCompanionJsonPathForMediaFile } from './get-companion-json-path-for-
 export async function getAllFilesExceptJson(inputDir: string, outputDir: string): Promise<FileInfo[]> {
   const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension.toLowerCase());
 
-  const allFilePaths = await getAllFilesRecursively(inputDir);
+  let allFilePaths = await getAllFilesRecursively(inputDir);
   const dirIsEmpty = allFilePaths.length === 0;
   if (dirIsEmpty) {
     throw new Error('The search directory is empty, so there is no work to do. Check that your --inputDir contains all of the Google Takeout data, and that any zips have been extracted before running this tool');
   }
+  else
+    allFilePaths.filter ( element => element.fileExtension.toLowerCase() != ".json" );
 
+  
   const allFiles: FileInfo[] = [];
   const allUsedOutputFilesLowerCased: string[] = [];
 
