@@ -140,7 +140,7 @@ class GooglePhotosExif extends Command {
 
       if (photoTimeTaken) {
         if (mediaFile.supportsExif) {
-          const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
+          const hasExifDate = await doesFileHaveExifDate(mediaFile.filePath);
           if (!hasExifDate) {
             await updateExifMetadata(mediaFile, photoTimeTaken, directories.error);
             fileNamesWithEditedExif.push(mediaFile.outputFileName);
