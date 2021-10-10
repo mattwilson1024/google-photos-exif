@@ -4,6 +4,7 @@ import { existsSync, promises as fspromises } from 'fs';
 import { CONFIG } from './config';
 import { FileInfo } from './models/file-info';
 import { Directories } from './models/directories'
+import { basename, extname, resolve } from 'path';
 import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
 import { getAllFilesExceptJson } from './helpers/get-all-files-except-json';
 import { readPhotoTakenTimeFromGoogleJson } from './helpers/read-photo-taken-time-from-google-json';
