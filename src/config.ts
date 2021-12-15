@@ -15,3 +15,5 @@ export const CONFIG: Config = {
     { extension: '.webp',  supportsExif: false },    
   ],
 };
+
+// Todo: Check all the formats that Apple Photos supports:  .jpg, .png, .webp, .gif, some RAW files, .mpg, .mod, .mmv, .tod, .wmv, .asf, .avi, .divx, .mov, .m4v, .3gp, .3g2, .mp4, .m2t, .m2ts, .mts, and .mkv files.
