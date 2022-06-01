@@ -1,0 +1,14 @@
+{
+  "features" : [ {
+    "geometry" : {
+      "coordinates" : [ -82.0201368, 38.4325896 ],
+      "type" : "Point"
+    },
+    "properties" : {
+      "address" : "Hurricane, WV, USA",
+      "name" : "“,Old School”"
+    },
+    "type" : "Feature"
+  } ],
+  "type" : "FeatureCollection"
+}

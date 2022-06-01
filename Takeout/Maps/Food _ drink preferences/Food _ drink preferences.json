@@ -1,0 +1,11 @@
+{
+  "cuisine_preferences" : {
+    "negative_preferences" : [ "CUISINE_THAI", "CUISINE_ARGENTINIAN", "CUISINE_BREAKFAST", "CUISINE_ITALIAN", "CUISINE_KOREAN", "CUISINE_JAPANESE", "CUISINE_FRENCH", "CUISINE_INDIAN", "CUISINE_AUSTRALIAN" ]
+  },
+  "dietary_restrictions" : {
+    "negative_preferences" : [ "RESTRICTION_VEGAN", "RESTRICTION_ALCOHOL_FREE" ]
+  },
+  "interests" : {
+    "negative_preferences" : [ "INTEREST_HEALTH_FOOD", "INTEREST_BAR_FOOD_NOTABLE" ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "createdTime": "2019-09-21T20:31:08.710Z",
+  "modifiedTime": "2022-05-23T14:10:40.370Z",
+  "historyEnabled": true,
+  "historyDeletionTime": "2022-02-25T03:17:04.022Z",
+  "deviceSettings": [{
+    "deviceTag": -63479520,
+    "reportingEnabled": true,
+    "legalCountryCode": "us",
+    "devicePrettyName": "DeeTing 41",
+    "platformType": "IOS",
+    "deviceCreationTime": "2022-05-23T14:10:40.370Z",
+    "latestLocationReportingSettingChange": {
+      "reportingEnabledModificationTime": "2022-05-23T14:10:40.370Z"
+    },
+    "iosVersion": "15.5",
+    "deviceSpec": {
+      "device": "iPhone13,4"
+    }
+  }, {
+    "deviceTag": -1679472519,
+    "reportingEnabled": true,
+    "legalCountryCode": "us",
+    "devicePrettyName": "iPhonedeez",
+    "platformType": "IOS",
+    "deviceCreationTime": "2022-04-21T12:55:41.863Z",
+    "latestLocationReportingSettingChange": {
+      "reportingEnabledModificationTime": "2022-04-21T12:55:41.863Z"
+    },
+    "iosVersion": "15.4.1",
+    "deviceSpec": {
+      "device": "iPhone13,4"
+    }
+  }, {
+    "deviceTag": 1251309269,
+    "reportingEnabled": true,
+    "legalCountryCode": "us",
+    "devicePrettyName": "Shane 41 Tingman",
+    "platformType": "IOS",
+    "deviceCreationTime": "2022-02-24T11:53:41.320Z",
+    "latestLocationReportingSettingChange": {
+      "reportingEnabledModificationTime": "2022-02-24T11:53:41.320Z"
+    },
+    "iosVersion": "15.4.1",
+    "deviceSpec": {
+      "device": "iPhone13,4"
+    }
+  }],
+  "latestLocationHistorySettingChange": {
+    "historyEnabledModificationTime": "2021-08-01T11:59:19.261Z"
+  },
+  "retentionWindowDays": 2147483647,
+  "hasReportedLocations": true,
+  "hasSetRetention": true
+}
