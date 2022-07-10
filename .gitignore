@@ -1,3 +1,4 @@
+# Recommended gitignore from oclif
 *-debug.log
 *-error.log
 /.nyc_output
@@ -8,5 +9,11 @@
 node_modules
 oclif.manifest.json
 
+# Misc other files/folders
 .idea/
 .DS_STORE
+
+# Example takeout/output/error directories specified in the readme - to avoid accidentally committing test data
+/takeout
+/output
+/error
