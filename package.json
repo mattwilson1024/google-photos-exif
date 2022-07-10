@@ -1,51 +1,73 @@
 {
   "name": "google-photos-exif",
+  "version": "3.0.0",
   "description": "A tool to populate missing DateTimeOriginal EXIF metadata in Google Photos takeout, using Google's JSON metadata.",
-  "version": "2.0.0",
   "author": "Matt Wilson @mattwilson1024",
   "bin": {
     "google-photos-exif": "./bin/run"
   },
-  "bugs": "https://github.com/mattwilson1024/google-photos-exif/issues",
-  "dependencies": {
-    "@oclif/command": "^1",
-    "@oclif/config": "^1",
-    "@oclif/plugin-help": "^3",
-    "exiftool-vendored": "^12.1.0",
-    "tslib": "^1"
-  },
-  "devDependencies": {
-    "@oclif/dev-cli": "^1",
-    "@types/node": "^10",
-    "eslint": "^5.13",
-    "eslint-config-oclif": "^3.1",
-    "eslint-config-oclif-typescript": "^0.1",
-    "ts-node": "^8",
-    "typescript": "^3.3"
-  },
-  "engines": {
-    "node": ">=10.1.0"
-  },
+  "homepage": "https://github.com/mattwilson1024/google-photos-exif",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "repository": "mattwilson1024/google-photos-exif",
   "files": [
     "/bin",
-    "/lib"
+    "/dist",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/mattwilson1024/google-photos-exif",
+  "dependencies": {
+    "@oclif/core": "^1",
+    "@oclif/plugin-help": "^5",
+    "@oclif/plugin-plugins": "^2.0.1",
+    "exiftool-vendored": "^16.5.1"
+  },
+  "devDependencies": {
+    "@oclif/test": "^2",
+    "@types/chai": "^4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.9.4",
+    "chai": "^4",
+    "eslint": "^7.32.0",
+    "eslint-config-oclif": "^4",
+    "eslint-config-oclif-typescript": "^1.0.2",
+    "globby": "^11",
+    "mocha": "^9",
+    "oclif": "^3",
+    "shx": "^0.3.3",
+    "ts-node": "^10.2.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  },
+  "oclif": {
+    "bin": "google-photos-exif",
+    "dirname": "google-photos-exif",
+    "commands": "./dist/commands",
+    "default": "process-photos",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ],
+    "topicSeparator": " ",
+    "topics": {}
+  },
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint . --ext .ts --config .eslintrc",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "yarn lint",
+    "prepack": "yarn build && oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md",
+    "dev": "./bin/dev",
+    "start": "./bin/run"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "bugs": "https://github.com/mattwilson1024/google-photos-exif/issues",
   "keywords": [
     "oclif"
   ],
-  "license": "MIT",
-  "main": "lib/index.js",
-  "oclif": {
-    "bin": "google-photos-exif"
-  },
-  "repository": "mattwilson1024/google-photos-exif",
-  "scripts": {
-    "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev readme",
-    "test": "echo NO TESTS",
-    "version": "oclif-dev readme && git add README.md",
-    "start": "./bin/run"
-  },
-  "types": "lib/index.d.ts"
+  "types": "dist/index.d.ts"
 }

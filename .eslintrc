@@ -9,6 +9,17 @@
     "no-await-in-loop": "off",
     "quotes": "off",
     "padded-blocks": "off",
-    "no-cond-assign": "off"
+    "no-cond-assign": "off",
+    "padding-line-between-statements": "off",
+    "valid-jsdoc": "off",
+    "dot-notation": "off",
+    "no-else-return": "off",
+    "unicorn/no-array-for-each": "off",
+    "unicorn/prefer-node-protocol": "off",
+    "unicorn/import-style": "off",
+    "unicorn/prefer-spread": "off",
+    "unicorn/better-regex": "off",
+    "unicorn/prefer-number-properties": "off",
+    "unicorn/prefer-optional-catch-binding": "off"
   }
 }
