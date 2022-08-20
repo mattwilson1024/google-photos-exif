@@ -13,7 +13,7 @@ A tool to populate missing `DateTimeOriginal` EXIF metadata in Google Photos tak
 * [Supported file types](#supported-file-types)
 * [How are media files matched to JSON sidecar files?](#how-are-media-files-matched-to-json-sidecar-files)
 * [Disclaimer?](#disclaimer)
-
+* [Workflow Example](#workflow-example)
 
 ## Quick Start
 
@@ -188,3 +188,81 @@ I decided to make this public on GitHub because:
  - future me might be thankful if I ever need to do this again
 
 With that said, please bear in mind that this tool won't be actively maintained and your mileage may vary. I'm sure it's far from perfect so if you choose to use it please proceed with caution and be careful to verify the results! I hope it's helpful.
+
+## Workflow Example
+
+The workflow below enabled one user of the project to take all the photos 
+in their Google Photo library (some saved from snapchat, some uploaded 
+from a Google Pixel, some uploaded from an iPhone, some downloaded from 
+the internet, etc.), make sure they all had the proper date, and then 
+upload them to another service (e.g., Apple Photos iCloud) with the proper 
+date metadata. Other attempted workflows ran into issues with multiple 
+photos having the same filename.
+
+1. Go to takeout.google.com. Under "Create a New Export" select "Deselect 
+all". Scroll down to Google Photos and select it. Click "All photo albums 
+included", then "Deselect all", and then select the album for the first 
+"Photos from <year>". It is important you only select one year. Then click 
+OK, scroll down, and click "Next step". 
+
+It is imperative you only select one year in this step. We want to create 
+a separate google takeout download for each year because (1) it is the 
+only way to split up the photos in Google Photos such that every photo is 
+covered uniquely, and (2) different photos are forced to have unique names 
+in the takeout or are in different folders (by virtue of being from 
+different years) but always in the same folder as their associated 
+metadata file.
+
+2. Make sure frequency is "Export once", and then change file size to 50 
+GB (you will need to make sure you have a utility downloaded that can 
+uncompress zip64 files). Select "Create Export".
+
+If you took more than 50 GB of data in a given year you will have more 
+than one folder within the "Google Photos" folder of the takeout folder 
+once it's created, you download, and unzip it. This is problematic as 
+multiple files may have the same name, and you have no guarantee if the 
+metadata file for a photo is in the same folder as it. Try to combine all 
+the files from one year into one folder, if you see that there are 
+duplicates then you will have to try something else. One solution is to go 
+through the photos of that year and manually add them to albums (such as 
+one album per month) and download those montly albums one at a time and 
+use them for the following steps.
+
+3. Download the export and uncompress it.
+
+4. Take out the folder from the takeout that says "Photos from <year>". 
+Delete the takeout folder (which will now be empty / contain the empty 
+Google Photos folder and perhaps a useless .html file). 
+
+5. Run the google-photos-exif tool on the "Photos from <year>" folder. 
+Scroll through all the phots in the output folder, make sure Created, 
+Modified, and Content created fields all match for every photo and are in 
+the year they should be.
+
+If any photos do not match this description, create a new folder and move 
+all these such photos to it. For each photo, create a file with the same 
+name as the photo but add ".JSON" to the end. In the JSON, write
+
+```
+{
+  "photoTakenTime": {
+    "timestamp": "<timestamp>"
+  }
+}
+```
+
+To get the timestamp, look at the Content created field of the photo (this 
+should be the original date the photo was taken and in the year which 
+matches with the year of photos we are looking at. Use a website to 
+convert this date to an epoch timestamp.
+
+Once you have a JSON file for each photo in this folder, run the 
+google-photos-exif tool on it, and then move all the photos from the 
+output (which should now have the correct date for every field in the 
+metadata) back into the same output folder as the other photos from that 
+year.
+
+6. Repeat steps 1-5 for every year of photos available in takeout. You now 
+have all your photos from Google Photos organized in folders by year with 
+the correct date metadata. Upload these folders to any other photo 
+storing/cloud service and/or keep them stored on your device.
