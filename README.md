@@ -1,6 +1,8 @@
 # google-photos-exif
 
-A tool to populate missing `DateTimeOriginal` EXIF metadata in Google Photos takeout, using Google's JSON metadata.
+A tool to populate missing EXIF metadata in Google Photos takeout, using Google's JSON metadata.
+
+This will populate both *time taken* and *geo location*.
 
 ## Table of Contents
 
@@ -145,7 +147,7 @@ The tool will do the following:
 
    c. Update the file modification date to the `photoTakenTime` found in the JSON metadata
    
-   d. If the file supports EXIF (e.g. JPEG images), read the EXIF metadata and write the `DateTimeOriginal` field if it does not already have a value in this field 
+   d. If the file supports EXIF (e.g. JPEG images), read the EXIF metadata and write the `DateTimeOriginal` and geo locations fields if it does not already have a value in this field
 
    e. If an error occurs whilst processing the file, copy it to the directory specified in the `errorDir` argument, so that it can be inspected manually or removed
 
