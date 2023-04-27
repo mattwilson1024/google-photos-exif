@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command';
 import * as Parser from '@oclif/parser';
-import { existsSync, promises as fspromises } from 'fs';
+import { existsSync, promises as fspromises, constants as fsconstants } from 'fs';
 import { CONFIG } from './config';
 import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
 import { findSupportedMediaFiles } from './helpers/find-supported-media-files';
@@ -118,7 +118,7 @@ class GooglePhotosExif extends Command {
 
       // Copy the file into output directory
       this.log(`Copying file ${i} of ${mediaFiles.length}: ${mediaFile.mediaFilePath} -> ${mediaFile.outputFileName}`);
-      await copyFile(mediaFile.mediaFilePath, mediaFile.outputFilePath);
+      await copyFile(mediaFile.mediaFilePath, mediaFile.outputFilePath, fsconstants.COPYFILE_FICLONE);
 
       // Process the output file, setting the modified timestamp and/or EXIF metadata where necessary
       const photoTimeTaken = await readPhotoTakenTimeFromGoogleJson(mediaFile);
