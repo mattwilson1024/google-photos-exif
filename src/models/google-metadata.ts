@@ -28,4 +28,5 @@ interface GooglePhotosOrigin {
   mobileUpload: object;
   fromPartnerSharing: object;
   driveSync: object;
+  driveDesktopUploader: object;
 }
