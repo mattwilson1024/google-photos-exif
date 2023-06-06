@@ -8,6 +8,7 @@ export interface GoogleMetadata {
   geoDataExif: GeoData;
   photoTakenTime: GoogleTimestamp;
   favorited: boolean;
+  googlePhotosOrigin: GooglePhotosOrigin;
 }
 
 interface GeoData {
@@ -21,4 +22,11 @@ interface GeoData {
 interface GoogleTimestamp {
   timestamp: string;
   formatted: string;
+}
+
+interface GooglePhotosOrigin {
+  mobileUpload: object;
+  fromPartnerSharing: object;
+  driveSync: object;
+  driveDesktopUploader: object;
 }

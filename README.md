@@ -98,6 +98,7 @@ The tool takes in three parameters:
 1. an `inputDir` directory path containing the extracted Google Takeout.
 2. an `outputDir` directory path where processed files will be moved to. This needs to be an empty directory and can be anywhere on the disk. 
 3. an `errorDir` directory path where images with bad EXIF data that fail to process will be moved to. The folder can be empty.
+4. an `excludePartnerSharingMedia` flag (optional). This flag causes any media that was saved via Google Partner Sharing to be skipped.
 
 The `inputDir` needs to be a single directory containing an _extracted_ zip from Google takeout. As described in the section above, it is important that the zip has been extracted into a directory (this tool doesn't extract zips for you) and that it is a single folder containing the whole Takeout (or if coming from multiple archives, that they have been properly merged together). 
 
@@ -108,6 +109,11 @@ Takeout
     2017-04-03
     2020-01-01
     ...
+```
+
+Example use of `excludePartnerSharingMedia` flag:
+```
+yarn start --inputDir ~/takeout --outputDir ~/output --errorDir ~/error --excludePartnerSharingMedia
 ```
 
 ## Configuring supported file types
