@@ -60,6 +60,5 @@ export function getCompanionJsonPathForMediaFile(mediaFilePath: string): string|
 
   // If no JSON file was found, just return null - we won't be able to adjust the date timestamps without finding a
   // suitable JSON sidecar file
-  console.log(`Missing JSON for ${mediaFilePath}`)
   return null;
 }
