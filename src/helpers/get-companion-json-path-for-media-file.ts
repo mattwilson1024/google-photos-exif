@@ -17,6 +17,12 @@ export function getCompanionJsonPathForMediaFile(mediaFilePath: string): string|
   const potentialJsonFileNames: string[] = [
     `${mediaFileNameWithoutExtension}.json`,
     `${mediaFileNameWithoutExtension}${mediaFileExtension}.json`,
+     // Some files have a xyz.mp4, xyz.jpg and xyz.jpg.json. The mp4 doesn't have its own.
+     // So xyz.mp4 should become xyz.jpg.json
+    `${mediaFileNameWithoutExtension}.jpg.json`,
+     // If the filename is more than 46 characters, Google can trim it to 46 characters.
+     // So xyz.jpg becomes xy.json
+    `${mediaFileNameWithoutExtension.substring(0,46)}.json`
   ];
 
   // Another edge case which seems to be quite inconsistent occurs when we have media files containing a number suffix for example "foo(1).jpg"
@@ -54,5 +60,6 @@ export function getCompanionJsonPathForMediaFile(mediaFilePath: string): string|
 
   // If no JSON file was found, just return null - we won't be able to adjust the date timestamps without finding a
   // suitable JSON sidecar file
+  console.log(`Missing JSON for ${mediaFilePath}`)
   return null;
 }
