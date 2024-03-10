@@ -10,4 +10,5 @@ export interface MediaFileInfo {
 
   outputFileName: string;
   outputFilePath: string;
+  outputFileFolder: string;
 }
