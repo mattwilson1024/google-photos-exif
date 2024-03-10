@@ -1,6 +1,6 @@
 import { Command, flags } from '@oclif/command';
 import * as Parser from '@oclif/parser';
-import { existsSync, promises as fspromises } from 'fs';
+import { existsSync, promises as fspromises, mkdirSync } from 'fs';
 import { CONFIG } from './config';
 import { doesFileHaveExifDate } from './helpers/does-file-have-exif-date';
 import { findSupportedMediaFiles } from './helpers/find-supported-media-files';
@@ -32,6 +32,10 @@ class GooglePhotosExif extends Command {
       description: 'Directory for any files that have bad EXIF data - including the matching metadata files',
       required: true,
     }),
+    preserveStructure: flags.boolean({
+      char: 'p',
+      description: 'The internal structure of the input directory will be copied in the output directory (Defaults to not enabled: media will be stored in the top leve of the output directory)',
+    })
   }
 
   static args: Parser.args.Input  = []
@@ -43,9 +47,9 @@ class GooglePhotosExif extends Command {
     try {
       const directories = this.determineDirectoryPaths(inputDir, outputDir, errorDir);
       await this.prepareDirectories(directories);
-      await this.processMediaFiles(directories);
+      await this.processMediaFiles(directories, flags.preserveStructure);
     } catch (error) {
-      this.error(error);
+      this.error(error as Error);
       this.exit(1);
     }
 
@@ -89,15 +93,15 @@ class GooglePhotosExif extends Command {
       }
     } else {
       this.log(`--- Creating directory: ${directoryPath} ---`);
-      await mkdir(directoryPath);
+      mkdirSync(directoryPath);
     }
   }
 
-  private async processMediaFiles(directories: Directories): Promise<void> {
+  private async processMediaFiles(directories: Directories, preserveStructure: boolean): Promise<void> {
     // Find media files
     const supportedMediaFileExtensions = CONFIG.supportedMediaFileTypes.map(fileType => fileType.extension);
     this.log(`--- Finding supported media files (${supportedMediaFileExtensions.join(', ')}) ---`)
-    const mediaFiles = await findSupportedMediaFiles(directories.input, directories.output);
+    const mediaFiles = await findSupportedMediaFiles(directories.input, directories.output, preserveStructure);
 
     // Count how many files were found for each supported file extension
     const mediaFileCountsByExtension = new Map<string, number>();
@@ -114,6 +118,12 @@ class GooglePhotosExif extends Command {
     this.log(`--- Processing media files ---`);
     const fileNamesWithEditedExif: string[] = [];
 
+    if (preserveStructure) {
+      for (let i = 0, mediaFile; mediaFile = mediaFiles[i]; i++) {
+        this.checkDirIsEmptyAndCreateDirIfNotFound(mediaFile.outputFileFolder, `Could not create subfolder in output directory`);
+      }
+    }
+
     for (let i = 0, mediaFile; mediaFile = mediaFiles[i]; i++) {
 
       // Copy the file into output directory
@@ -128,7 +138,7 @@ class GooglePhotosExif extends Command {
           const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
           if (!hasExifDate) {
             await updateExifMetadata(mediaFile, photoTimeTaken, directories.error);
-            fileNamesWithEditedExif.push(mediaFile.outputFileName);
+            fileNamesWithEditedExif.push(mediaFile.outputFilePath);
             this.log(`Wrote "DateTimeOriginal" EXIF metadata to: ${mediaFile.outputFileName}`);
           }
         }
